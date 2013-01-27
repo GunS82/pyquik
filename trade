@@ -1,8 +1,9 @@
 #!/usr/bin/python
 from trading import Market, Order, Indicator, Serie, MARKET_PRICE
-from trading.strategy import Strategy, Insanity
+from trading.strategy import Strategy, Insanity, Sequental
 from trading.backtest import BacktestMarket
 from trading.evolver import Evolver
+from trading.broker import TRADE_SHORT, TRADE_LONG, TRADE_EXIT, TRADE_KEEP
 from util import save_as_js
 from optparse import OptionParser
 import settings
@@ -40,7 +41,8 @@ def do_trade(args, options):
     market = QuikMarket(settings.QUIK_PATH, settings.QUIK_DDE)
     candle = market[ticker].candle( datetime.timedelta( seconds=settings.TRADE_PERIOD ) )
 #    candle.strategy( Strategy )
-    candle.strategy( Insanity )
+#    candle.strategy( Insanity )
+    candle.strategy( Sequental, trades=[TRADE_SHORT, TRADE_EXIT, TRADE_LONG] )
 #    candle.ontick += monitor
 #    market[ticker].ontick += monitor
     market.run()

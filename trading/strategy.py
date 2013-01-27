@@ -3,6 +3,17 @@ import logging
 
 log = logging.getLogger("strategy")
 
+class Sequental:
+    def __init__(self,ticker, trades=[]):
+        self.ticker = ticker
+        self.trades = trades
+
+    def trade( self, ticker ):
+
+        result = self.trades.pop(0) if self.trades else TRADE_KEEP
+        log.debug('Strategy %s says: %s' % (self.__class__.__name__, TRADE_NAMES[result]))
+        return result
+
 class Insanity:
     def __init__(self,ticker):
         self.ticker = ticker

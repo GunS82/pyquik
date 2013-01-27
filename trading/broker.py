@@ -43,12 +43,9 @@ class Broker:
 
     def trade_long( self, ticker ):
         log.info("Enter long: %s" % self)
-        if self.order:
-            if self.order.operation == SELL:
-                self.order = ticker.buy( ticker.price, self.order.quantity + 1 )
-                self.order.submit()
-            else:
-                raise Exception("Invalid state - open long twice")
+        if self.order and self.order.operation == SELL:
+            self.order = ticker.buy( ticker.price, self.order.quantity + 1 )
+            self.order.submit()
         else:
             self.order = ticker.buy( ticker.price )
             self.order.submit()
@@ -56,12 +53,9 @@ class Broker:
 
     def trade_short( self, ticker ):
         log.info("Enter short: %s" % self)
-        if self.order:
-            if self.order.operation == BUY:
-                self.order = ticker.sell( ticker.price, self.order.quantity + 1 )
-                self.order.submit()
-            else:
-                raise Exception("Invalid state - open short twice")
+        if self.order and self.order.operation == BUY:
+            self.order = ticker.sell( ticker.price, self.order.quantity + 1 )
+            self.order.submit()
         else:
             self.order = ticker.sell( ticker.price )
             self.order.submit()
