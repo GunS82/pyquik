@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import settings
 import unittest,sys
 sys.path.insert(0, '.')
 
@@ -8,7 +9,7 @@ def print_data(x):
 class QDDETest(unittest.TestCase):
 
     def setUp(self):
-        self.quik = quik.Quik("C:\\quik-bcs","QuikDDE")
+        self.quik = quik.Quik(settings.QUIK_PATH, settings.QUIK_DDE)
         self.quik.subscribe( "TICKERS",{"code":"Код бумаги","name":"Бумага","price":"Цена послед."}, print_data )
 
     def testRun(self):

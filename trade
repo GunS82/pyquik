@@ -5,6 +5,7 @@ from trading.backtest import BacktestMarket
 from trading.evolver import Evolver
 from util import save_as_js
 from optparse import OptionParser
+import settings
 import datetime
 import logging,  sys
 
@@ -35,7 +36,7 @@ def do_trade(args, options):
     except ImportError as ex:
         raise Exception("Quik connector not available: %s" % ex)
 
-    market = QuikMarket( "c:\\quik-bcs","QuikDDE" )
+    market = QuikMarket(settings.QUIK_PATH, settings.QUIK_DDE)
     candle = market["SBER03"].candle( datetime.timedelta( minutes=1 ) )
     candle.strategy( Strategy )
     candle.ontick += monitor
