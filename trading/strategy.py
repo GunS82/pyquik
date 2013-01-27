@@ -30,10 +30,11 @@ class Insanity:
 
 class Strategy:
 
-    def __init__(self,ticker,matype=0,period=4):
+    def __init__(self,ticker,matype=0,period=13,stability=5):
         self.ticker = ticker
         self.matype = matype
         self.period = period
+        self.stability = stability
         self.ma1 = ticker.indicator("MA1", "MA", optInTimePeriod=period, optInMAType=matype)
         self.signal = ticker["signal"]
         self.signal.set(0)
@@ -49,10 +50,11 @@ class Strategy:
         else:
             self.signal.set( 0 )
 
-        STABILITY=5
-        ssum = sum(self.signal.data()[-STABILITY:]) 
-        if ssum == STABILITY: 
+        ssum = sum(self.signal.data()[-self.stability:]) 
+        if ssum == +self.stability: 
             return TRADE_LONG
+        if ssum == -self.stability: 
+            return TRADE_SHORT
         if ssum == 0.0:
             return TRADE_EXIT
 
