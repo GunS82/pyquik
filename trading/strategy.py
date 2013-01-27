@@ -41,8 +41,8 @@ class Strategy:
 
     def trade( self, ticker ):
         size = len(ticker)
+        log.debug("Collecting data: %d/%d", size, self.period)
         if size < self.period: 
-            log.debug("Collecting data: %d/%d" ,size, self.period )
             return TRADE_KEEP
 
         if ticker.price < self.ma1.value():
@@ -53,11 +53,14 @@ class Strategy:
             self.signal.set( 0 )
 
         ssum = sum(self.signal.data()[-self.stability:]) 
-        log.debug("MA ssum = %+d; +-%d needed." % (ssum, self.stability))
+        exitability = max(1, round(self.stability * 0.33))
+        log.debug("MA ssum = %+d, need >=%d to trade, <=%d to exit." % (ssum, self.stability, exitability))
 
         if ssum == +self.stability: 
             return TRADE_LONG
         if ssum == -self.stability: 
             return TRADE_SHORT
+        if abs(ssum) <= exitability: 
+            return TRADE_EXIT
 
         return TRADE_KEEP

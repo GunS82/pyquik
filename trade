@@ -41,7 +41,7 @@ def do_trade(args, options):
     market = QuikMarket(settings.QUIK_PATH, settings.QUIK_DDE)
     candle = market[ticker].candle( datetime.timedelta( seconds=settings.TRADE_PERIOD ) )
 
-    candle.strategy(Strategy, period=4, stability=3)
+    candle.strategy(Strategy, period=4, stability=3, matype=1)
 #    candle.strategy(Insanity)
 #    candle.strategy(Sequental, trades=[TRADE_SHORT, TRADE_EXIT, TRADE_LONG, TRADE_EXIT])
 
