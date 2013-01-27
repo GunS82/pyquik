@@ -46,11 +46,15 @@ class Strategy:
             return TRADE_KEEP
 
         if ticker.price < self.ma1.value():
-            self.signal.set( 1 )
+            self.signal.set( +1 )
+        elif ticker.price > self.ma1.value():
+            self.signal.set( -1 )
         else:
             self.signal.set( 0 )
 
         ssum = sum(self.signal.data()[-self.stability:]) 
+        log.debug("MA ssum = %+d; +-%d needed." % (ssum, self.stability))
+
         if ssum == +self.stability: 
             return TRADE_LONG
         if ssum == -self.stability: 
