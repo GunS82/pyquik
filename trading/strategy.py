@@ -59,8 +59,5 @@ class Strategy:
             return TRADE_LONG
         if ssum == -self.stability: 
             return TRADE_SHORT
-        if ssum == 0.0:
-            return TRADE_EXIT
 
         return TRADE_KEEP
-
