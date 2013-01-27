@@ -23,7 +23,7 @@ public:
 	}
 
 	void init(DWORD r, DWORD c, const T& s) {
-		assign(r, std::vector< T >(c,s));
+		this->assign(r, std::vector< T >(c,s));
 		rows = r;
 		cols = c;
 	}
