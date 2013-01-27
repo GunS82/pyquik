@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from .order import Order, BUY, SELL, MARKET_PRICE
 from talib.talib import TA_LIB, TA_Func
+import settings
 import numpy,datetime
 from util import Hook
 
@@ -62,10 +63,10 @@ class Indicator(Serie):
  
 class Ticker:
 
-    def __init__(self,market,name):
+    def __init__(self,market,name, classcode=settings.TRADE_CLASSCODE):
         self.market = market
         self.name = self.seccode = name
-        self.classcode = False
+        self.classcode = classcode
         self.series = {}
         self.indicators = {}
         self.candles = {}
@@ -94,7 +95,7 @@ class Ticker:
     def candle(self,period):
         if period in self.candles:
             return self.candles[period]
-        c = self.candles[period] = Candle( self.market, period )
+        c = self.candles[period] = Candle( self.market, self.name, self.classcode, period )
         return c
 
     def indicator(self,name,func=None, **kwargs):
@@ -135,6 +136,14 @@ class Ticker:
     def order(self, order_key):
         tmp = Order( self )
         tmp.order_key = order_key
+
+        # Search an order in the sub-tickers (candles). This hierarchy is totally weird, but I use it as it is, yet.
+        for candle in self.candles.values():
+            try:
+                return candle.orders[ candle.orders.index( tmp ) ]
+            except ValueError:
+                pass
+
         try:
             return self.orders[ self.orders.index( tmp ) ]
         except ValueError:
@@ -147,15 +156,15 @@ class Ticker:
     def book(self, bid, ask):
         self.bid = bid
         self.ask = ask
-        print("%s: BID: %s ASK: %s" % (self.name, self.bid, self.ask))
+#        print("%s: BID: %s ASK: %s" % (self.name, self.bid, self.ask))
 
     def __repr__(self):
         return "%s: %.2f" % (self.name, self.price)
 
 class Candle(Ticker):
 
-    def __init__(self,market,period):
-        Ticker.__init__(self,market,str(period))
+    def __init__(self,market,name,classcode, period):
+        Ticker.__init__(self,market,name,classcode)
         self.period = period
         self.open_time = None
         self["open"].set(0.0)

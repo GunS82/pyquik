@@ -5,6 +5,12 @@ TRADE_KEEP=None
 TRADE_EXIT=0
 TRADE_LONG=1
 TRADE_SHORT=-1
+TRADE_NAMES = {
+    TRADE_KEEP: "KEEP",
+    TRADE_EXIT: "EXIT",
+    TRADE_LONG: "LONG",
+    TRADE_SHORT: "SHORT",
+}
 
 log = logging.getLogger("broker")
 
@@ -17,7 +23,7 @@ class Broker:
 
     def trade_cancel( self, ticker ):
         if self.order and self.order.status in [NEW,ACTIVE]:
-            log.info("Kill %s", self.order )
+            log.info("Kill id=%s: %s", id(self.order), self.order )
             self.order.kill()
             self.order = None
 

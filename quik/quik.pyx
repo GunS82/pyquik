@@ -200,9 +200,9 @@ cdef void quik_ondata(char* topic, char* item, Table* table):
                 top = 1
                 try:
                     handler.headers = [ table.getString(0, c).decode("utf-8") for c in range( cols ) ]
-                    handler.indexes = [ handler.headers.index( handler.fields[f].decode("utf-8") ) for f in handler.fields ]
-                except ValueError:
-                    raise Exception("Table '%s' header do not match column list" % title )
+                    handler.indexes = [ handler.headers.index( handler.fields[f] ) for f in handler.fields ]
+                except ValueError, e:
+                    raise Exception("Table '%s' header do not match column list: %s" % (title, e))
             else:
                 top = 0
                 if not handler.indexes:

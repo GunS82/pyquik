@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
+import settings
 import logging
 from util import Hook, ReadyHook
 
 log = logging.getLogger("order")
-
-CLIENT_ACCOUNT="L01-00000F00"
-CLIENT_CODE=52709
 
 MARKET_PRICE=0
 BUY="B"
@@ -27,8 +25,8 @@ class BaseOrder:
         self.ticker = ticker
         self.trans_id = Order.LAST_ID
         self.order_key = None
-        self.account = CLIENT_ACCOUNT
-        self.client_code = CLIENT_CODE
+        self.account = settings.CLIENT_ACCOUNT
+        self.client_code = settings.CLIENT_CODE
         self.seccode = ticker.seccode
         self.classcode = ticker.classcode
         self.status = NEW
@@ -49,11 +47,13 @@ class BaseOrder:
        self.ticker.market.execute( self, self.submit_status )
 
     def submit_status(self,status):
-        self.order_key = status["order_key"]
-        if not self.order_key:
-            raise Exception( status["message"] )
-        self.status = ACTIVE
-        self.onregistered()
+        #NB: when the order is killed, order_key is 0. It is okay, not an error. Probably.
+        if status["order_key"]:
+            self.order_key = status["order_key"]
+            self.status = ACTIVE
+            self.onregistered()
+#        else:
+#            raise Exception( status["message"] )
 
     def delete(self):
         idx = self.ticker.orders.index( self )

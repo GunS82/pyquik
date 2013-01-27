@@ -1,6 +1,6 @@
 #!/usr/bin/python
 from trading import Market, Order, Indicator, Serie, MARKET_PRICE
-from trading.strategy import Strategy 
+from trading.strategy import Strategy, Insanity
 from trading.backtest import BacktestMarket
 from trading.evolver import Evolver
 from util import save_as_js
@@ -36,11 +36,13 @@ def do_trade(args, options):
     except ImportError as ex:
         raise Exception("Quik connector not available: %s" % ex)
 
+    ticker = settings.TRADE_TICKER
     market = QuikMarket(settings.QUIK_PATH, settings.QUIK_DDE)
-    candle = market["SBER03"].candle( datetime.timedelta( minutes=1 ) )
-    candle.strategy( Strategy )
-    candle.ontick += monitor
-    market["SBER03"].ontick += monitor
+    candle = market[ticker].candle( datetime.timedelta( seconds=settings.TRADE_PERIOD ) )
+#    candle.strategy( Strategy )
+    candle.strategy( Insanity )
+#    candle.ontick += monitor
+#    market[ticker].ontick += monitor
     market.run()
 
 def do_evolve(args, options):
@@ -77,4 +79,5 @@ if __name__ == "__main__":
         else:
             globals()[fname]( args, options )
     except Exception as ex:
-        parser.error( str(ex) )
+#        parser.error( str(ex) )
+        raise

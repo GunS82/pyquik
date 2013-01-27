@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
 import datetime
+import logging
 from quik import Quik
 from trading import market
 from trading.order import Order, BUY, SELL, EXECUTED, ACTIVE, KILLED
+
     
-ORDER_OP = {"Купля":BUY,"Продажа":SELL}
+log = logging.getLogger('qmarket')
+
+ORDER_OP = {u"Купля":BUY,u"Продажа":SELL}
 
 class QuikMarket(market.Market):
 
@@ -15,25 +19,25 @@ class QuikMarket(market.Market):
         self.bid = {}
         self.ask = {}
         self.conn.subscribe( "TICKERS", {
-            "seccode":"Код бумаги",
-            "classcode":"Код класса",
-            "price":"Цена послед."
+            "seccode":u"Код бумаги",
+            "classcode":u"Код класса",
+            "price":u"Цена послед."
         }, self.ontick )
 
         self.conn.subscribe( "ORDERS", {
-            "order_key":"Номер",
-            "seccode":"Код бумаги",
-            "operation":"Операция",
-            "price":"Цена",
-            "quantity":"Кол-во",
-            "left":"Остаток",
-            "state":"Состояние"
+            "order_key":u"Номер",
+            "seccode":u"Код бумаги",
+            "operation":u"Операция",
+            "price":u"Цена",
+            "quantity":u"Кол-во",
+            "left":u"Остаток",
+            "state":u"Состояние"
         }, self.onorder )
 
         self.conn.subscribe( "BOOK", {
-            "price":"Цена",
-            "ask":"Покупка",
-            "bid":"Продажа"
+            "price":u"Цена",
+            "ask":u"Покупка",
+            "bid":u"Продажа"
         }, self.onbook, self.onbookready )
 
     def onbookready(self,tool):
@@ -59,20 +63,22 @@ class QuikMarket(market.Market):
 
     def onorder(self,data):
         state = data["state"]
-        ticker = self.__getattr__( data["seccode"] )
+        ticker = self.__getitem__( data["seccode"] )
         order = ticker.order( int( data["order_key"] ) )
+        old_status = order.status
         order.operation = ORDER_OP[ data["operation"] ]
         order.price = float( data["price"] )
         order.quantity = int( data["quantity"] )
         order.quantity_left = int( data["left"] )
-        if state == "Исполнена": 
+        if state == u"Исполнена": 
             order.status = EXECUTED
             order.onexecuted()
             order.delete()
-        if state == "Активна": 
+        elif state == u"Активна": 
             order.status = ACTIVE
             order.onregistered()
-        if state == "Снята": 
+        elif state == u"Снята": 
             order.status = KILLED
             order.onkilled()
             order.delete()
+        log.debug('Order status changed, id=%s, key=%s, status: %s -> %s' % (id(order), order.order_key, old_status, order.status))
