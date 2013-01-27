@@ -1,4 +1,5 @@
 import logging
+import settings
 from trading.order import *
 
 TRADE_KEEP=None
@@ -30,12 +31,12 @@ class Broker:
     def trade_exit( self, ticker ):
         if self.order:
             if self.order.operation == BUY:
-                self.order = ticker.sell( ticker.price )
+                self.order = ticker.sell(ticker.price, self.order.quantity)
                 self.order.submit()
                 log.debug("Exit %s", self.order )
                 return self.order
             if self.order.operation == SELL:
-                self.order = ticker.buy( ticker.price )
+                self.order = ticker.buy(ticker.price, self.order.quantity)
                 self.order.submit()
                 log.debug("Exit %s", self.order )
                 return self.order
@@ -44,20 +45,20 @@ class Broker:
     def trade_long( self, ticker ):
         log.info("Enter long: %s" % self)
         if self.order and self.order.operation == SELL:
-            self.order = ticker.buy( ticker.price, self.order.quantity + 1 )
+            self.order = ticker.buy( ticker.price, self.order.quantity + settings.TRADE_PACK_SIZE )
             self.order.submit()
         else:
-            self.order = ticker.buy( ticker.price )
+            self.order = ticker.buy(ticker.price, settings.TRADE_PACK_SIZE)
             self.order.submit()
         return self.order
 
     def trade_short( self, ticker ):
         log.info("Enter short: %s" % self)
         if self.order and self.order.operation == BUY:
-            self.order = ticker.sell( ticker.price, self.order.quantity + 1 )
+            self.order = ticker.sell( ticker.price, self.order.quantity + settings.TRADE_PACK_SIZE )
             self.order.submit()
         else:
-            self.order = ticker.sell( ticker.price )
+            self.order = ticker.sell(ticker.price, settings.TRADE_PACK_SIZE)
             self.order.submit()
         return self.order
 
